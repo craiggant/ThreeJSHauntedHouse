@@ -1,13 +1,10 @@
 import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-// import * as dat from 'lil-gui';
 
 /**
  * Base
  */
-// Debug
-// const gui = new dat.GUI();
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl');
@@ -32,6 +29,16 @@ const doorHeightTexture = textureLoader.load('/textures/door/height.jpg');
 const doorNormalTexture = textureLoader.load('/textures/door/normal.jpg');
 const doorMetalnessTexture = textureLoader.load('/textures/door/metalness.jpg');
 const doorRoughnessTexture = textureLoader.load('/textures/door/roughness.jpg');
+
+const graveColorTexture = textureLoader.load('/textures/grave/color.jpg');
+const graveAmbientOcclusionTexture = textureLoader.load(
+	'/textures/grave/ambientOcclusion.jpg'
+);
+const graveHeightTexture = textureLoader.load('/textures/grave/height.png');
+const graveNormalTexture = textureLoader.load('/textures/grave/normal.jpg');
+const graveRoughnessTexture = textureLoader.load(
+	'/textures/grave/roughness.jpg'
+);
 
 const bricksColorTexture = textureLoader.load('/textures/bricks/color.jpg');
 const bricksAmbientOcclusionTexture = textureLoader.load(
@@ -147,12 +154,14 @@ for (let i = 0; i < bushes.length; i++) {
 const graves = new THREE.Group();
 scene.add(graves);
 
-const randomZ = Math.random() * 0.5;
-
-const cross = new THREE.Group();
-
-const graveSquareGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.15);
-const graveMaterial = new THREE.MeshStandardMaterial({ color: '#b2b6b1' });
+const graveSquareGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.1);
+const graveMaterial = new THREE.MeshStandardMaterial({
+	map: graveColorTexture,
+	aoMap: graveAmbientOcclusionTexture,
+	normalMap: graveNormalTexture,
+	roughness: graveRoughnessTexture,
+	transparent: true,
+});
 
 const crossGeometryMain = new THREE.BoxGeometry(0.1, 0.8, 0.09);
 const crossGeometrySecondary = new THREE.BoxGeometry(0.4, 0.1, 0.09);
@@ -166,6 +175,13 @@ for (let i = 0; i < 50; i++) {
 	// add equal parts of both types of graves. We'll separate by if i = even or not
 	if (i % 2 === 0) {
 		const grave = new THREE.Mesh(graveSquareGeometry, graveMaterial);
+		grave.geometry.setAttribute(
+			'uv2',
+			new THREE.Float32BufferAttribute(
+				grave.geometry.attributes.uv.array,
+				2
+			)
+		);
 		grave.position.set(x, Math.random() * 0.4, z);
 		grave.rotation.y = (Math.random() - 0.5) * 0.4;
 		grave.rotation.z = (Math.random() - 0.5) * 0.4;
@@ -175,6 +191,20 @@ for (let i = 0; i < 50; i++) {
 		const cross = new THREE.Group();
 		const mainPole = new THREE.Mesh(crossGeometryMain, graveMaterial);
 		const sidePole = new THREE.Mesh(crossGeometrySecondary, graveMaterial);
+		mainPole.geometry.setAttribute(
+			'uv2',
+			new THREE.Float32BufferAttribute(
+				mainPole.geometry.attributes.uv.array,
+				2
+			)
+		);
+		sidePole.geometry.setAttribute(
+			'uv2',
+			new THREE.Float32BufferAttribute(
+				sidePole.geometry.attributes.uv.array,
+				2
+			)
+		);
 		sidePole.position.set(0, 0.15, 0);
 		mainPole.castShadow = true;
 		sidePole.castShadow = true;
@@ -194,8 +224,10 @@ const floor = new THREE.Mesh(
 	new THREE.MeshStandardMaterial({
 		map: grassColorTexture,
 		aoMap: grassAmbientOcclusionTexture,
-		normalMap: grassNormalTexture,
 		roughnessMap: grassRoughnessTexture,
+		displacementMap: graveHeightTexture,
+		displacementScale: 0.01,
+		normalMap: grassNormalTexture,
 	})
 );
 floor.geometry.setAttribute(
@@ -211,16 +243,11 @@ scene.add(floor);
  */
 // Ambient light
 const ambientLight = new THREE.AmbientLight('#b9d5ff', 0.12);
-// gui.add(ambientLight, 'intensity').min(0).max(1).step(0.001);
 scene.add(ambientLight);
 
 // Directional light
 const moonLight = new THREE.DirectionalLight('#b9d5ff', 0.12);
 moonLight.position.set(4, 5, -2);
-// gui.add(moonLight, 'intensity').min(0).max(1).step(0.001);
-// gui.add(moonLight.position, 'x').min(-5).max(5).step(0.001);
-// gui.add(moonLight.position, 'y').min(-5).max(5).step(0.001);
-// gui.add(moonLight.position, 'z').min(-5).max(5).step(0.001);
 scene.add(moonLight);
 
 // Door Light
