@@ -1,13 +1,13 @@
 import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import * as dat from 'lil-gui';
+// import * as dat from 'lil-gui';
 
 /**
  * Base
  */
 // Debug
-const gui = new dat.GUI();
+// const gui = new dat.GUI();
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl');
@@ -147,8 +147,15 @@ for (let i = 0; i < bushes.length; i++) {
 const graves = new THREE.Group();
 scene.add(graves);
 
-const graveGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2);
+const randomZ = Math.random() * 0.5;
+
+const cross = new THREE.Group();
+
+const graveSquareGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.15);
 const graveMaterial = new THREE.MeshStandardMaterial({ color: '#b2b6b1' });
+
+const crossGeometryMain = new THREE.BoxGeometry(0.1, 0.8, 0.09);
+const crossGeometrySecondary = new THREE.BoxGeometry(0.4, 0.1, 0.09);
 
 for (let i = 0; i < 50; i++) {
 	const angle = Math.random() * Math.PI * 2;
@@ -156,12 +163,28 @@ for (let i = 0; i < 50; i++) {
 	const x = Math.sin(angle) * radius;
 	const z = Math.cos(angle) * radius;
 
-	const grave = new THREE.Mesh(graveGeometry, graveMaterial);
-	graves.add(grave);
-	grave.position.set(x, Math.random() * 0.4, z);
-	grave.rotation.y = (Math.random() - 0.5) * 0.4;
-	grave.rotation.z = (Math.random() - 0.5) * 0.4;
-	grave.castShadow = true;
+	// add equal parts of both types of graves. We'll separate by if i = even or not
+	if (i % 2 === 0) {
+		const grave = new THREE.Mesh(graveSquareGeometry, graveMaterial);
+		grave.position.set(x, Math.random() * 0.4, z);
+		grave.rotation.y = (Math.random() - 0.5) * 0.4;
+		grave.rotation.z = (Math.random() - 0.5) * 0.4;
+		grave.castShadow = true;
+		graves.add(grave);
+	} else {
+		const cross = new THREE.Group();
+		const mainPole = new THREE.Mesh(crossGeometryMain, graveMaterial);
+		const sidePole = new THREE.Mesh(crossGeometrySecondary, graveMaterial);
+		sidePole.position.set(0, 0.15, 0);
+		cross.add(mainPole);
+		cross.add(sidePole);
+
+		cross.position.set(x, Math.random() * 0.4, z);
+		cross.rotation.y = (Math.random() - 0.5) * 0.4;
+		cross.rotation.z = (Math.random() - 0.5) * 0.4;
+		cross.castShadow = true;
+		graves.add(cross);
+	}
 }
 
 // Floor
@@ -187,16 +210,16 @@ scene.add(floor);
  */
 // Ambient light
 const ambientLight = new THREE.AmbientLight('#b9d5ff', 0.12);
-gui.add(ambientLight, 'intensity').min(0).max(1).step(0.001);
+// gui.add(ambientLight, 'intensity').min(0).max(1).step(0.001);
 scene.add(ambientLight);
 
 // Directional light
 const moonLight = new THREE.DirectionalLight('#b9d5ff', 0.12);
 moonLight.position.set(4, 5, -2);
-gui.add(moonLight, 'intensity').min(0).max(1).step(0.001);
-gui.add(moonLight.position, 'x').min(-5).max(5).step(0.001);
-gui.add(moonLight.position, 'y').min(-5).max(5).step(0.001);
-gui.add(moonLight.position, 'z').min(-5).max(5).step(0.001);
+// gui.add(moonLight, 'intensity').min(0).max(1).step(0.001);
+// gui.add(moonLight.position, 'x').min(-5).max(5).step(0.001);
+// gui.add(moonLight.position, 'y').min(-5).max(5).step(0.001);
+// gui.add(moonLight.position, 'z').min(-5).max(5).step(0.001);
 scene.add(moonLight);
 
 // Door Light
