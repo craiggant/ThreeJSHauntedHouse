@@ -176,13 +176,14 @@ for (let i = 0; i < 50; i++) {
 		const mainPole = new THREE.Mesh(crossGeometryMain, graveMaterial);
 		const sidePole = new THREE.Mesh(crossGeometrySecondary, graveMaterial);
 		sidePole.position.set(0, 0.15, 0);
+		mainPole.castShadow = true;
+		sidePole.castShadow = true;
 		cross.add(mainPole);
 		cross.add(sidePole);
 
 		cross.position.set(x, Math.random() * 0.4, z);
 		cross.rotation.y = (Math.random() - 0.5) * 0.4;
 		cross.rotation.z = (Math.random() - 0.5) * 0.4;
-		cross.castShadow = true;
 		graves.add(cross);
 	}
 }
